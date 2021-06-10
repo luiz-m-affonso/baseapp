@@ -14,7 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/openware/pkg/jwt"
 	"github.com/openware/pkg/mngapi/peatio"
-	"baseapp/daemons"
+	"github.com/openware/baseapp/daemons"
 )
 
 const (
@@ -352,9 +352,9 @@ func CreatePlatform(ctx *gin.Context) {
 	}
 
 	// Create markets from openfinex-cloud
-	err = daemons.FetchMarketsFromOpenfinexCloud(sc.PeatioClient, opendaxConfig.Addr, platform.PID)
+	err = daemons.FetchConfiguration(sc.PeatioClient, opendaxConfig.Addr, platform.PID)
 	if err != nil {
-		log.Printf("ERROR: Failed to create markets: %s", err.Error())
+		log.Printf("ERROR: Failed to create platform configuration: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

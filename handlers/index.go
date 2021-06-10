@@ -6,12 +6,12 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
-	"strconv"
 
-	"baseapp/daemons"
+	"github.com/openware/baseapp/daemons"
 
 	"github.com/foolin/goview/supports/ginview"
 	"github.com/gin-gonic/gin"
@@ -60,7 +60,7 @@ func Setup(app *sonic.Runtime) {
 		return
 	}
 
-	log.Println("DeploymentID in config:", DeploymentID)
+	log.Println("DeploymentID in config:", app.Conf.DeploymentID)
 
 	// Get app router
 	router := app.Srv
@@ -113,6 +113,9 @@ func Setup(app *sonic.Runtime) {
 
 	// Run LicenseRenewal
 	go daemons.LicenseRenewal("finex", app, vaultService)
+
+	// Fetch currencies and markets from the main platform periodically
+	go daemons.FetchConfigurationPeriodic(peatioClient, vaultService, opendaxConfig.Addr)
 }
 
 // StartConfigCaching will fetch latest data from vault every 30 seconds
@@ -144,10 +147,10 @@ func index(ctx *gin.Context) {
 	}
 
 	ctx.HTML(http.StatusOK, "index", gin.H{
-		"title":    	"BaseApp",
-		"cssFiles": 	cssFiles,
-		"jsFiles":  	jsFiles,
-		"rootID":   	"root",
+		"title":        "BaseApp",
+		"cssFiles":     cssFiles,
+		"jsFiles":      jsFiles,
+		"rootID":       "root",
 		"renderFooter": renderFooter,
 	})
 }
