@@ -6,10 +6,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Router } from 'react-router';
 import { gaTrackerKey } from './api';
 import { ErrorWrapper } from './containers';
-import { useRangerConnectFetch, useSetMobileDevice } from './hooks';
+import { useSetMobileDevice } from './hooks';
 import * as mobileTranslations from './mobile/translations';
 import { configsFetch, selectCurrentLanguage, selectMobileDeviceState } from './modules';
 import { languageMap } from './translations';
+import WebSocketProvider from './websocket/WebSocket';
 
 const gaKey = gaTrackerKey();
 const browserHistory = createBrowserHistory();
@@ -83,17 +84,19 @@ export const App = () => {
     useSetMobileDevice();
     const lang = useSelector(selectCurrentLanguage);
     const isMobileDevice = useSelector(selectMobileDeviceState);
-    useRangerConnectFetch();
+    // useRangerConnectFetch();
 
     return (
         <IntlProvider locale={lang} messages={getTranslations(lang, isMobileDevice)} key={lang}>
-            <Router history={browserHistory}>
-                <ErrorWrapper>
-                    <React.Suspense fallback={null}>
-                        <RenderDeviceContainers />
-                    </React.Suspense>
-                </ErrorWrapper>
-            </Router>
+            <WebSocketProvider>
+                <Router history={browserHistory}>
+                    <ErrorWrapper>
+                        <React.Suspense fallback={null}>
+                            <RenderDeviceContainers />
+                        </React.Suspense>
+                    </ErrorWrapper>
+                </Router>
+            </WebSocketProvider>
         </IntlProvider>
     );
 };
